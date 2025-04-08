@@ -1,5 +1,5 @@
 import Descuento from "../models/descuentoModel.js";
-import Product from "../../../productos/src/models/productModel.js";
+import axios from "axios";
 
 // Obtener todos los descuentos
 export const getDescuentos = async (req, res) => {
@@ -99,10 +99,12 @@ export const applyDescuentoToProduct = async (req, res) => {
   const { productId, descuentoId } = req.body;
 
   try {
-    const product = await Product.findByPk(productId);
-    const descuento = await Descuento.findByPk(descuentoId);
+    const [producto, descuento] = await Promise.all([
+      axios.get(`https://products-production-4dfa.up.railway.app/productos/${productId}`),
+      Descuento.findByPk(descuentoId)
+    ]);
 
-    if (!product) {
+    if (!producto.data) {
       return res.status(404).json({ message: "El producto no existe." });
     }
 
@@ -111,14 +113,16 @@ export const applyDescuentoToProduct = async (req, res) => {
     }
 
     // Aplicar el descuento al precio del producto
-    const precioOriginal = product.precio;
+    const precioOriginal = producto.data.precio;
     const precioConDescuento = precioOriginal - (precioOriginal * descuento.porcentaje_descuento) / 100;
 
-    await product.update({ precio: precioConDescuento });
+    await axios.patch(`https://products-production-4dfa.up.railway.app/productos/${productId}`, {
+      precio: precioConDescuento
+    });
 
     res.status(200).json({
       message: "Descuento aplicado correctamente",
-      product,
+      producto: { ...producto.data, precio: precioConDescuento },
       descuento,
     });
   } catch (error) {
