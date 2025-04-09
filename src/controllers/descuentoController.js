@@ -113,7 +113,7 @@ export const applyDescuentoToProduct = async (req, res) => {
       return res.status(404).json({ message: "El descuento no existe o no está activo." });
     }
 
-    const precioOriginal = producto.data.precio;
+    const precioOriginal = parseFloat(producto.data.precio);
     const precioConDescuento = precioOriginal - (precioOriginal * descuento.porcentaje_descuento) / 100;
 
     await axios.patch(`${baseProductUrl}/${productId}`, {
