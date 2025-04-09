@@ -34,7 +34,7 @@ export const createDescuento = async (req, res) => {
       porcentaje_descuento,
       fecha_inicio,
       fecha_fin,
-      estatus: estatus ?? true, // Por defecto activo
+      estatus: estatus ?? true,
     });
 
     res.status(201).json(descuento);
@@ -93,6 +93,7 @@ export const deleteDescuento = async (req, res) => {
   }
 };
 
+// Aplicar un descuento a un producto
 export const applyDescuentoToProduct = async (req, res) => {
   const { productId, descuentoId } = req.body;
 
@@ -124,12 +125,11 @@ export const applyDescuentoToProduct = async (req, res) => {
 
     console.log(`💰 Aplicando descuento: de $${precioOriginal} a $${precioConDescuento}`);
 
-    await axios.patch(`${baseProductUrl}/${productId}`, {
+    // 👇👇 Aquí se corrigió la ruta PATCH
+    await axios.patch(`${baseProductUrl}/update/${productId}`, {
       precio: precioConDescuento
     });
-    
-    
-    
+
     console.log("✅ Precio actualizado exitosamente");
 
     res.status(200).json({
@@ -143,3 +143,4 @@ export const applyDescuentoToProduct = async (req, res) => {
     res.status(500).json({ message: "Error al aplicar descuento" });
   }
 };
+
