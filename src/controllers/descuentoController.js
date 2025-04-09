@@ -16,7 +16,6 @@ export const getDescuentos = async (req, res) => {
 export const createDescuento = async (req, res) => {
   const { descripcion, porcentaje_descuento, fecha_inicio, fecha_fin, estatus } = req.body;
 
-  // Validaciones
   if (!descripcion || !porcentaje_descuento || !fecha_inicio || !fecha_fin) {
     return res.status(400).json({ message: "Todos los campos son obligatorios." });
   }
@@ -35,7 +34,7 @@ export const createDescuento = async (req, res) => {
       porcentaje_descuento,
       fecha_inicio,
       fecha_fin,
-      estatus: estatus ?? true, // Por defecto, el descuento está activo
+      estatus: estatus ?? true, // Por defecto activo
     });
 
     res.status(201).json(descuento);
@@ -74,7 +73,7 @@ export const updateDescuento = async (req, res) => {
   }
 };
 
-// Eliminar un descuento (cambiar su estado a inactivo)
+// Eliminar un descuento (cambio lógico de estado)
 export const deleteDescuento = async (req, res) => {
   const { id } = req.params;
 
@@ -114,7 +113,6 @@ export const applyDescuentoToProduct = async (req, res) => {
       return res.status(404).json({ message: "El descuento no existe o no está activo." });
     }
 
-    // Aplicar el descuento al precio del producto
     const precioOriginal = producto.data.precio;
     const precioConDescuento = precioOriginal - (precioOriginal * descuento.porcentaje_descuento) / 100;
 
