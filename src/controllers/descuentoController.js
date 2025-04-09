@@ -99,8 +99,10 @@ export const applyDescuentoToProduct = async (req, res) => {
   const { productId, descuentoId } = req.body;
 
   try {
+    const baseProductUrl = "https://products-production-4dfa.up.railway.app/app/products";
+
     const [producto, descuento] = await Promise.all([
-      axios.get(`https://products-production-4dfa.up.railway.app/productos/${productId}`),
+      axios.get(`${baseProductUrl}/${productId}`),
       Descuento.findByPk(descuentoId)
     ]);
 
@@ -116,7 +118,7 @@ export const applyDescuentoToProduct = async (req, res) => {
     const precioOriginal = producto.data.precio;
     const precioConDescuento = precioOriginal - (precioOriginal * descuento.porcentaje_descuento) / 100;
 
-    await axios.patch(`https://products-production-4dfa.up.railway.app/productos/${productId}`, {
+    await axios.patch(`${baseProductUrl}/${productId}`, {
       precio: precioConDescuento
     });
 
