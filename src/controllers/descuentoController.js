@@ -93,40 +93,51 @@ export const deleteDescuento = async (req, res) => {
   }
 };
 
-// Aplicar un descuento a un producto
 export const applyDescuentoToProduct = async (req, res) => {
   const { productId, descuentoId } = req.body;
 
   try {
+    console.log("🟢 Iniciando aplicación de descuento");
     const baseProductUrl = "https://products-production-4dfa.up.railway.app/app/products";
 
-    const [producto, descuento] = await Promise.all([
-      axios.get(`${baseProductUrl}/${productId}`),
-      Descuento.findByPk(descuentoId)
-    ]);
+    console.log("📦 Obteniendo producto:", `${baseProductUrl}/${productId}`);
+    const productoResponse = await axios.get(`${baseProductUrl}/${productId}`);
+    const producto = productoResponse.data;
 
-    if (!producto.data) {
+    console.log("🔍 Producto recibido:", producto);
+
+    const descuento = await Descuento.findByPk(descuentoId);
+    console.log("🔍 Descuento recibido:", descuento);
+
+    if (!producto) {
+      console.warn("⚠️ Producto no encontrado");
       return res.status(404).json({ message: "El producto no existe." });
     }
 
     if (!descuento || !descuento.estatus) {
+      console.warn("⚠️ Descuento no válido o inactivo");
       return res.status(404).json({ message: "El descuento no existe o no está activo." });
     }
 
-    const precioOriginal = parseFloat(producto.data.precio);
+    const precioOriginal = parseFloat(producto.precio);
     const precioConDescuento = precioOriginal - (precioOriginal * descuento.porcentaje_descuento) / 100;
+
+    console.log(`💰 Aplicando descuento: de $${precioOriginal} a $${precioConDescuento}`);
 
     await axios.patch(`${baseProductUrl}/${productId}`, {
       precio: precioConDescuento
     });
 
+    console.log("✅ Precio actualizado exitosamente");
+
     res.status(200).json({
       message: "Descuento aplicado correctamente",
-      producto: { ...producto.data, precio: precioConDescuento },
+      producto: { ...producto, precio: precioConDescuento },
       descuento,
     });
   } catch (error) {
-    console.error("Error al aplicar descuento:", error);
+    console.error("❌ Error al aplicar descuento:", error.message);
+    console.error("🔎 Detalles del error:", error);
     res.status(500).json({ message: "Error al aplicar descuento" });
   }
 };
