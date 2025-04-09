@@ -124,9 +124,10 @@ export const applyDescuentoToProduct = async (req, res) => {
 
     console.log(`💰 Aplicando descuento: de $${precioOriginal} a $${precioConDescuento}`);
 
-    await axios.patch(`https://products-production-4dfa.up.railway.app/app/products/${productId}`, {
+    await axios.patch(`${baseProductUrl}/${productId}`, {
       precio: precioConDescuento
     });
+    
     
     
     console.log("✅ Precio actualizado exitosamente");
